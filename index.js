@@ -1,19 +1,37 @@
 require('dotenv').config()
 const config = process.env
+const port = config.PORT || 5001;
 const { clientId, guildId, token } = require('./config.json');
-const discord_token = token;
 const fs = require('node:fs');
 const path = require('node:path');
-const { Client, Collection, Events, GatewayIntentBits, MessageFlags } = require('discord.js');
 
-// Create a new client instance
+// Import MongoDB connection
+require('./mongo-database');
+
+// API gateway
+const express = require('express');
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.get('/',async (req, res) => {
+	res.send('Hello World!');
+});
+const task = require('./routes/task');
+app.use('/tasks',task);
+app.listen(config.PORT, () => {
+	console.log(`Server is running on port ${config.PORT}`);
+});
+
+// Discord bot
+	// Create a new client instance
+const discord_token = token;
+const { Client, Collection, Events, GatewayIntentBits, MessageFlags } = require('discord.js');
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 client.once(Events.ClientReady, (readyClient) => {
 	console.log(`Ready! Logged in as ${readyClient.user.tag}`);
 });
-
-// Log in to Discord with your client's token
+	// Log in to Discord with your client's token
 client.login(discord_token);
 client.commands = new Collection(); 
 const foldersPath = path.join(__dirname, 'commands');
@@ -58,3 +76,4 @@ client.on(Events.InteractionCreate, async (interaction) => {
 		}
 	}
 });
+
