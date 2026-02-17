@@ -5,8 +5,16 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "node deploy-commands.js && nodemon index.js"
   },
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["."],
+  "exclude": ["node_modules"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dustiexx/taskdx.git"
@@ -25,4 +33,5 @@
     "mongoose": "^9.2.1",
     "nodemon": "^3.1.11"
   }
+  
 }

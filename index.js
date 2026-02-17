@@ -38,6 +38,10 @@ const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
 for (const folder of commandFolders) {
 	const commandsPath = path.join(foldersPath, folder);
+	// Check if it's a directory before trying to read it
+	if (!fs.statSync(commandsPath).isDirectory()) {
+		continue; // Skip files
+	}
 	const commandFiles = fs.readdirSync(commandsPath).filter((file) => file.endsWith('.js'));
 	for (const file of commandFiles) {
 		const filePath = path.join(commandsPath, file);

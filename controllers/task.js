@@ -4,8 +4,17 @@ async function getTasks(query = '', req, res) {
     try {
         const tasks = await Task.find();
         return res.json(tasks);
-    } catch (err) {
-        console.error(err);
+    } 
+    catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+}
+
+async function getTask(id, req, res) {
+    try {
+        const task = await Task.findOne(id);
+    }
+    catch(err){
         return res.status(500).json({ error: err.message });
     }
 }
@@ -15,7 +24,8 @@ async function createTask(taskData, req, res) {
         const task = new Task(taskData);
         const savedTask = await task.save();
         return res.json(savedTask);
-    } catch (err) {
+    } 
+    catch (err) {
         console.error(err);
         return res.status(400).json({ error: err.message });
     }
@@ -23,5 +33,6 @@ async function createTask(taskData, req, res) {
 
 module.exports = {
     getTasks,
+    getTask,
     createTask
 };
