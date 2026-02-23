@@ -31,6 +31,9 @@ const Task = new mongo.Schema({
     },
     dueDate:{
         type: mongo.Schema.Types.Date,
+    },
+    assignee:{
+        type: String,
     }
 });
 

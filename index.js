@@ -34,6 +34,7 @@ client.once(Events.ClientReady, (readyClient) => {
 	// Log in to Discord with your client's token
 client.login(discord_token);
 client.commands = new Collection(); 
+client.cooldowns = new Collection();
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
 for (const folder of commandFolders) {
@@ -55,15 +56,43 @@ for (const folder of commandFolders) {
 	}
 }
 
+
 client.on(Events.InteractionCreate, async (interaction) => {
 	if (!interaction.isChatInputCommand()) return; 
-	// console.log(interaction);
 	const command = interaction.client.commands.get(interaction.commandName);
 	if (!command) {
 		console.error(`No command matching ${interaction.commandName} was found.`);
 		return;
 	}
 	try {
+		// Command Cooldown handling
+		const { cooldowns } = interaction.client;
+		// console.log('cooldown: ' + cooldowns);
+		if (!cooldowns.has(command.data.name)) {
+			cooldowns.set(command.data.name, new Collection());
+		}
+		const now = Date.now();
+		const timestamps = cooldowns.get(command.data.name);
+		const defaultCooldownDuration = 0.5;
+		const cooldownAmount = (command.cooldown ?? defaultCooldownDuration) * 1_000;
+		// console.log('timestamp: ' + timestamps);
+		// console.log('cooldownamout: ' + cooldownAmount);
+		// console.log(timestamps.has(interaction.user.id));
+		if (timestamps.has(interaction.user.id)) {
+			const expirationTime = timestamps.get(interaction.user.id) + cooldownAmount;
+			console.log('expireationTime in if: ' + expirationTime);
+			if (now < expirationTime) {
+				return interaction.reply({
+					content: `Slow down, bro.`,
+					flags: MessageFlags.Ephemeral,
+				});
+				}
+			}
+		else {
+			timestamps.set(interaction.user.id, now);
+			setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount);
+			console.log('timestamp in else: ' + timestamps);
+		}
 		await command.execute(interaction);
 	} catch (error) {
 		console.error(error);
